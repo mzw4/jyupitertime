@@ -4,6 +4,8 @@ import pylab
 from numpy import linalg
 from sklearn import random_projection
 
+_output_dir = 'output_data/'
+
 # ============================= Functions =============================
 
 """
@@ -192,7 +194,7 @@ K = 1
 # mean=0 and var=1.
 # Each data vector is normalized for consistency.
 X = generate_data(n, d, 'half_covary', normalize=True)
-output_data(X, 'CcaPca.csv')
+output_data(X, _output_dir + 'CcaPca.csv')
 
 # Take view 1 as first 50 coordinates and view 2 as second 50 coordinates,
 # shows a clear separation between views
@@ -235,7 +237,7 @@ K = 20
 # PCA does poorly because each feature has nearly equal variance
 # RP does well because...the matrix is dense?
 X = generate_data(n, d, 'uniform')
-output_data(X, 'RpBeatsPCA.csv')
+output_data(X, _output_dir + 'RpBeatsPCA.csv')
 compare_pca_rp(X, K)
 
 # Generates a dataset where the first K features are uniformly distributed
@@ -244,7 +246,7 @@ compare_pca_rp(X, K)
 # information is essentially retained.
 # RP does poorly because... the matrix is more sparse?
 X = generate_data(n, d, 'custom_pca', K=K)
-output_data(X, 'PcaBeatsRp.csv')
+output_data(X, _output_dir + 'PcaBeatsRp.csv')
 compare_pca_rp(X, K)
 
 
