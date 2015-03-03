@@ -1,5 +1,6 @@
 import math, time
 import numpy as np
+import pylab
 from numpy import linalg
 from sklearn import random_projection
 
@@ -52,11 +53,10 @@ def PCA(X, K=float('inf')):
 """
 CCA wooo
 """
-def CCA(X, v1_size, K):
+def CCA(v1, v2, K):
   # want data matrix to be d x n
-  X = X.T
-  v1 = X[:, :v1_size]
-  v2 = X[:, v1_size:]
+  X = np.hstack((v1, v2)).T
+  v1_size = v1.shape[1]
 
   # parse joint covariance matrices
   joint_cov = np.cov(X, bias=1)
@@ -70,15 +70,20 @@ def CCA(X, v1_size, K):
 
   # construct W
   W_joint = inv_c_11.dot(c_12).dot(inv_c_22).dot(c_21)
-  W = get_W(W_joint, K).T
+  W = get_W(W_joint, K)
 
   # construct V
   V_joint = inv_c_22.dot(c_21).dot(inv_c_11).dot(c_12)
-  V = get_W(V_joint, K).T
+  V = get_W(V_joint, K)
 
-  Y_v1 = W.dot(v1)
-  Y_v2 = V.dot(v2)
-  return Y_v1, W, Y_v2, V
+  Y_v1 = W.dot(v1.T)
+  Y_v2 = V.dot(v2.T)
+
+  assert Y_v1.shape == Y_v2.shape == (K, n)
+  assert W.shape == (K, v1_size)
+  assert V.shape == (K, X.shape[0] - v1_size)
+
+  return Y_v1.T, W, Y_v2.T, V
 
 """
 Guaussian random projection
@@ -108,6 +113,20 @@ def generate_data(n, d, type='uniform', normalize=True, K=None):
     X = np.vstack((np.array([[1 if i == 0 else 0 for i in range(d)] for j in range(n/2)] ), np.array([[1 if i == 1 else 0 for i in range(d)] for j in range(n/2)] )))
   elif type == 'sparse':
     X = np.hstack((np.random.rand(n, 1), np.zeros((n, d-1))))
+  elif type == 'half_covary':
+    # generate vectors of n numbers with mean=0 and var=1
+    # concatenate so half features increase monotonically and half decrease monotonically
+    # increasing = np.sort(np.random.normal(loc=0, scale=1, size=(d/2, n))).T
+    # decreasing = np.fliplr(np.sort(np.random.normal(loc=0, scale=1, size=(d/2, n)))).T
+    
+    increasing = np.sort(np.random.normal(loc=0, scale=1, size=(n, d/2)))
+    decreasing = np.fliplr(np.sort(np.random.normal(loc=0, scale=1, size=(n, d/2))))
+    
+    # print increasing
+    # print decreasing
+
+    X = np.hstack((increasing, decreasing))
+    # print X.shape
   else:
     print 'Invalid dataset type'
     return None
@@ -131,25 +150,108 @@ def Err(Y):
 """
 Run projections and compare errors for random projection and PCA
 """
-def project_data(X, K):
+def compare_pca_rp(X, K):
   Y_rp = rand_projection(X, K)
   Y_pca, _ = PCA(X, K)
 
   print 'Random projection err: ' + str(Err(Y_rp))
   print 'PCA err: ' + str(Err(Y_pca))
 
+"""
+Perform CCA and plot in 1 dimension
+"""
+def CCA_plot(v1, v2, K):
+  Y_v1, W, Y_v2, V = CCA(v1, v2, K)
+
+  pylab.plot(Y_v1, [0] * n, 'g+', label='Projected view 1')
+  pylab.plot(Y_v2, [0] * n, 'r+', label='Projected view 2')
+  pylab.legend(loc='upper right')
+  pylab.show()
+
+def output_data(X, fname):
+  with open(fname, 'w') as datafile:
+    content = ''
+    for x_t in X:
+      for i, f in enumerate(x_t):
+        content += str(f) + (',' if i != len(x_t)-1 else '')
+      content += '\n'
+    datafile.write(content)
+
 # ============================= Main =============================
 
-K = 20
+# 1
+
+n = 1000
+d = 100
+K = 1
+
+# this generates a dataset where, for each data vector, the first 50 features
+# are monotonically increasing and the last 50 are decreasing. This creates
+# the maximum inverse correlation between the first and last features.
+# The value of every feature is selected from a normal distribution with
+# mean=0 and var=1.
+# Each data vector is normalized for consistency.
+X = generate_data(n, d, 'half_covary', normalize=True)
+output_data(X, 'CcaPca.csv')
+
+# Take view 1 as first 50 coordinates and view 2 as second 50 coordinates,
+# shows a clear separation between views
+v1 = X[:, :d/2]
+v2 = X[:, d/2:]
+
+CCA_plot(v1, v2, K)
+
+# Take view 1 as odd coordinates and view 2 as even,
+# shows no clear separation of views
+v1 = X[:, ::2]  # even columns
+v2 = X[:, 1::2] # odd columns
+
+CCA_plot(v1, v2, K)
+
+# Perform PCA with K=2, shows no clear separation between
+# first 500 and last 500 points
+K = 2
+Y, W = PCA(X, K)
+Y1 = Y[:n/2]  # first 500 points
+Y2 = Y[n/2:]  # last 500 points
+
+Y1_x = [p[0] for p in Y1]
+Y1_y = [p[1] for p in Y1]
+pylab.plot(Y1_x, Y1_y, 'g+')
+
+Y2_x = [p[0] for p in Y2]
+Y2_y = [p[1] for p in Y2]
+pylab.plot(Y2_x, Y2_y, 'r+')
+pylab.show()
+
+# --------------------------------------------------------------------
+# 2
+
 n = 100
 d = 1000
+K = 20
 
-# project_data(generate_data(n, d, 'uniform'), K)
-project_data(generate_data(n, d, 'custom_pca', K=K), K)
-# project_data(generate_data(n, d, 'custom_pca', 2), K)
-# project_data(generate_data(n, d, 'max_spread', K), K)
-# project_data(generate_data(n, d, 'max_spread2'), K)
+# Generates a uniformly distributed, normalized dataset
+# PCA does poorly because each feature has nearly equal variance
+# RP does well because...the matrix is dense?
+X = generate_data(n, d, 'uniform')
+output_data(X, 'RpBeatsPCA.csv')
+compare_pca_rp(X, K)
 
-X = generate_data(1000, 100, 'normal')
-Y_v1, W, Y_v2, V = CCA(X, 50, 50)
+# Generates a dataset where the first K features are uniformly distributed
+# and normalized.
+# PCA does well because exactly K features have variance > 0 so all
+# information is essentially retained.
+# RP does poorly because... the matrix is more sparse?
+X = generate_data(n, d, 'custom_pca', K=K)
+output_data(X, 'PcaBeatsRp.csv')
+compare_pca_rp(X, K)
+
+
+# failed attempts
+
+# compare_pca_rp(generate_data(n, d, 'custom_pca', 2), K)
+# compare_pca_rp(generate_data(n, d, 'max_spread', K), K)
+# compare_pca_rp(generate_data(n, d, 'max_spread2'), K)
+
 
