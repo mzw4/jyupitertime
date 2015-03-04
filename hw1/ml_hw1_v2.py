@@ -192,14 +192,15 @@ def draw_smile(X):
         for j in range(height):
             rgb_val = int(X[i][j])
             pixels[i,j] = (rgb_val, rgb_val, rgb_val) # set the colour
-    img.show()
+    return img
 
 
 # In[142]:
 
 # Building smile matrix
 X_smiles = smiles.reshape(28,105,105)
-draw_smile(X_smiles[0])
+my_smile = draw_smile(X_smiles[0])
+my_smile.show()
 
 
 # In[145]:
@@ -217,4 +218,6 @@ S = np.multiply(A,B)
 # Restore Cubed Smiles
 Y_signed_cubes = [np.multiply(S, Y_cube) for Y_cube in Y_cubes]
 Y_restored_cubes = [skpca.inverse_transform(Y_signed_cube).reshape((105,105)) for Y_signed_cube in Y_signed_cubes]
-draw_smile(Y_restored_cubes[0])
+for idx, Y_restored_cube in enumerate(Y_restored_cubes, start=1):
+    img = draw_smile(Y_restored_cube)
+    img.save('output_images/Restored_Cubist_'+str(idx)+'.png')
