@@ -81,7 +81,7 @@ def CCA(v1, v2, K):
   Y_v1 = W.dot(v1.T)
   Y_v2 = V.dot(v2.T)
 
-  assert Y_v1.shape == Y_v2.shape == (K, n)
+  assert Y_v1.shape == Y_v2.shape == (K, v1.shape[0])
   assert W.shape == (K, v1_size)
   assert V.shape == (K, X.shape[0] - v1_size)
 
@@ -107,6 +107,10 @@ def generate_data(n, d, type='uniform', normalize=True, K=None):
     X = np.random.normal(size=(n, d))
   elif type == 'custom_pca' and K:
     X = np.hstack((np.random.rand(n, K), np.zeros((n, d-K))))
+  elif type == 'custom_pca_spread' and K:
+    X = np.hstack((np.random.rand(n, K/2), np.zeros((n, d-K)), np.random.rand(n, K/2)))
+  elif type == 'identity':
+    X = np.hstack(( np.identity(n), np.zeros((n, d)) ))
   elif type == 'max_spread' and K:
     X = np.hstack((np.identity(K), np.zeros((K, d-K))))
     for i in range(4):
@@ -118,17 +122,36 @@ def generate_data(n, d, type='uniform', normalize=True, K=None):
   elif type == 'half_covary':
     # generate vectors of n numbers with mean=0 and var=1
     # concatenate so half features increase monotonically and half decrease monotonically
+
     # increasing = np.sort(np.random.normal(loc=0, scale=1, size=(d/2, n))).T
     # decreasing = np.fliplr(np.sort(np.random.normal(loc=0, scale=1, size=(d/2, n)))).T
     
-    increasing = np.sort(np.random.normal(loc=0, scale=1, size=(n, d/2)))
-    decreasing = np.fliplr(np.sort(np.random.normal(loc=0, scale=1, size=(n, d/2))))
-    
-    # print increasing
-    # print decreasing
+    # separated
+    # increasing = np.random.normal(loc=0, scale=1, size=(d/2, n)).T
+    # decreasing = np.random.normal(loc=0, scale=1, size=(d/2, n)).T
+
+
+    increasing = np.random.normal(loc=0, scale=1, size=(d/2, n)).T
+    decreasing = np.fliplr(increasing * -1)
+
+    # wrong
+    # increasing = np.sort(np.random.normal(loc=0, scale=1, size=(n, d/2)))
+    # decreasing = np.fliplr(np.sort(np.random.normal(loc=0, scale=1, size=(n, d/2))))
 
     X = np.hstack((increasing, decreasing))
-    # print X.shape
+    # for i in range(0, X.shape[1]/2 + 2, 2):
+    #   X[:, i] = X[:, (i+1)%50] + X[:, (i+3)%100] - X[:, (i+5)%100]
+
+    # for i in range(X.shape[1]/2, X.shape[1], 2):
+    #   X[:, i] = X[:, (i+1)%100] + X[:, (i+3)%100] - X[:, (i+5)%100]
+
+    # for i in range(0, X.shape[1], 2):
+    #   X[:, i] = sum(X[:, (i+j)%100] for j in range(50)) - sum(X[:, (i+j)%100] for j in range(50, 50, 1))
+
+    X[:, :50] = np.sort(X[:, :50].T).T
+    X[:, 50:] = np.fliplr(np.sort(X[:, 50:].T)).T
+
+    print X
   else:
     print 'Invalid dataset type'
     return None
@@ -165,8 +188,14 @@ Perform CCA and plot in 1 dimension
 def CCA_plot(v1, v2, K):
   Y_v1, W, Y_v2, V = CCA(v1, v2, K)
 
-  pylab.plot(Y_v1, [0] * n, 'g+', label='Projected view 1')
-  pylab.plot(Y_v2, [0] * n, 'r+', label='Projected view 2')
+  # view 1
+  pylab.plot(Y_v1[:500], [0] * (v1.shape[0]/2), 'g+', label='Projected view 1, first 500')
+  pylab.plot(Y_v1[500:], [0] * (v1.shape[0]/2), 'r+', label='Projected view 1, last 500')
+  pylab.legend(loc='upper right')
+  pylab.show()
+
+  pylab.plot(Y_v2[:500], [0] * (v2.shape[0]/2), 'g+', label='Projected view 2, first 500')
+  pylab.plot(Y_v2[500:], [0] * (v2.shape[0]/2), 'r+', label='Projected view 2, second 500')
   pylab.legend(loc='upper right')
   pylab.show()
 
@@ -182,78 +211,83 @@ def output_data(X, fname):
 # ============================= Main =============================
 
 # 1
+def part1():
+  n = 1000
+  d = 100
+  K = 1
 
-n = 1000
-d = 100
-K = 1
+  # this generates a dataset where, for each data vector, the first 50 features
+  # are monotonically increasing and the last 50 are decreasing. This creates
+  # the maximum inverse correlation between the first and last features.
+  # The value of every feature is selected from a normal distribution with
+  # mean=0 and var=1.
+  # Each data vector is normalized for consistency.
+  X = generate_data(n, d, 'half_covary', normalize=True)
+  output_data(X, _output_dir + 'CcaPca.csv')
 
-# this generates a dataset where, for each data vector, the first 50 features
-# are monotonically increasing and the last 50 are decreasing. This creates
-# the maximum inverse correlation between the first and last features.
-# The value of every feature is selected from a normal distribution with
-# mean=0 and var=1.
-# Each data vector is normalized for consistency.
-X = generate_data(n, d, 'half_covary', normalize=True)
-output_data(X, _output_dir + 'CcaPca.csv')
+  # Take view 1 as first 50 coordinates and view 2 as second 50 coordinates,
+  # shows a clear separation between views
+  v1 = X[:, :d/2]
+  v2 = X[:, d/2:]
 
-# Take view 1 as first 50 coordinates and view 2 as second 50 coordinates,
-# shows a clear separation between views
-v1 = X[:, :d/2]
-v2 = X[:, d/2:]
+  CCA_plot(v1, v2, K)
 
-CCA_plot(v1, v2, K)
+  # Take view 1 as odd coordinates and view 2 as even,
+  # shows no clear separation of views
+  v1 = X[:, ::2]  # even columns
+  v2 = X[:, 1::2] # odd columns
 
-# Take view 1 as odd coordinates and view 2 as even,
-# shows no clear separation of views
-v1 = X[:, ::2]  # even columns
-v2 = X[:, 1::2] # odd columns
+  CCA_plot(v1, v2, K)
 
-CCA_plot(v1, v2, K)
+  # Perform PCA with K=2, shows no clear separation between
+  # first 500 and last 500 points
+  K = 2
+  Y, W = PCA(X, K)
+  Y1 = Y[:n/2]  # first 500 points
+  Y2 = Y[n/2:]  # last 500 points
 
-# Perform PCA with K=2, shows no clear separation between
-# first 500 and last 500 points
-K = 2
-Y, W = PCA(X, K)
-Y1 = Y[:n/2]  # first 500 points
-Y2 = Y[n/2:]  # last 500 points
+  Y1_x = [p[0] for p in Y1]
+  Y1_y = [p[1] for p in Y1]
+  pylab.plot(Y1_x, Y1_y, 'g+')
 
-Y1_x = [p[0] for p in Y1]
-Y1_y = [p[1] for p in Y1]
-pylab.plot(Y1_x, Y1_y, 'g+')
+  Y2_x = [p[0] for p in Y2]
+  Y2_y = [p[1] for p in Y2]
+  pylab.plot(Y2_x, Y2_y, 'r+')
+  pylab.show()
 
-Y2_x = [p[0] for p in Y2]
-Y2_y = [p[1] for p in Y2]
-pylab.plot(Y2_x, Y2_y, 'r+')
-pylab.show()
+part1()
 
 # --------------------------------------------------------------------
 # 2
 
-n = 100
-d = 1000
-K = 20
+def part2():
+  n = 100
+  d = 1000
+  K = 20
 
-# Generates a uniformly distributed, normalized dataset
-# PCA does poorly because each feature has nearly equal variance
-# RP does well because...the matrix is dense?
-X = generate_data(n, d, 'uniform')
-output_data(X, _output_dir + 'RpBeatsPCA.csv')
-compare_pca_rp(X, K)
+  # Generates a uniformly distributed, normalized dataset
+  # PCA does poorly because each feature has nearly equal variance
+  # RP does well because...the matrix is dense?
+  X = generate_data(n, d, 'uniform')
+  output_data(X, _output_dir + 'RpBeatsPCA.csv')
+  compare_pca_rp(X, K)
 
-# Generates a dataset where the first K features are uniformly distributed
-# and normalized.
-# PCA does well because exactly K features have variance > 0 so all
-# information is essentially retained.
-# RP does poorly because... the matrix is more sparse?
-X = generate_data(n, d, 'custom_pca', K=K)
-output_data(X, _output_dir + 'PcaBeatsRp.csv')
-compare_pca_rp(X, K)
+  # Generates a dataset where the first K features are uniformly distributed
+  # and normalized.
+  # PCA does well because exactly K features have variance > 0 so all
+  # information is essentially retained.
+  # RP does poorly because... the matrix is more sparse?
+  
+  # X = generate_data(n, d, 'custom_pca_spread', K=K)
+  X = generate_data(n, d, 'identity')
 
+  output_data(X, _output_dir + 'PcaBeatsRp.csv')
+  compare_pca_rp(X, K)
 
-# failed attempts
+  # failed attempts
 
-# compare_pca_rp(generate_data(n, d, 'custom_pca', 2), K)
-# compare_pca_rp(generate_data(n, d, 'max_spread', K), K)
-# compare_pca_rp(generate_data(n, d, 'max_spread2'), K)
+  # compare_pca_rp(generate_data(n, d, 'custom_pca', 2), K)
+  # compare_pca_rp(generate_data(n, d, 'max_spread', K), K)
+  # compare_pca_rp(generate_data(n, d, 'max_spread2'), K)
 
-
+# part2()
