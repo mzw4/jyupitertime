@@ -241,6 +241,7 @@ save_points(km_1, 'XkmeansI.csv')
 save_points(km_2, 'XkmeansII.csv')
 save_points([[c] for c in c1], 'ckmeansI.csv')
 save_points([[c] for c in c2[:30]], 'ckmeansII.csv')
+save_points(us, 'means.csv')
 
 
 # Some assertions
