@@ -20,10 +20,10 @@ def plot_kmeans(data, centroids, initial_centroids, assignments):
     pylab.plot([x[0] for x in cluster], [x[1] for x in cluster],  color + 'o')
   
   # plot centroids
-  pylab.plot([x for (c, x, y) in centroids], [y for (c, x, y) in centroids],  'b+', ms=10.0, label='Final centroids')
+  pylab.plot([x for (x, y) in centroids], [y for (x, y) in centroids],  'b+', ms=10.0, label='Final centroids')
 
   # plot initial centroids
-  pylab.plot([x for (c, x, y) in initial_centroids], [y for (c, x, y) in initial_centroids],  'g+', ms=10.0, label='Initial centroids')
+  pylab.plot([x for (x, y) in initial_centroids], [y for (x, y) in initial_centroids],  'g+', ms=10.0, label='Initial centroids')
 
   pylab.ylim([-2,7])
   pylab.xlim([-2,6])
@@ -47,7 +47,7 @@ def kmeans(data, k = 2, centroids = []):
     centroids = []
     for i in range(k):
       index = int(random.random() * num_points)
-      centroids.append((i, data[index][0], data[index][1]))
+      centroids.append((data[index][0], data[index][1]))
   print "initial centroids: " + str(centroids)
 
   initial_centroids = centroids
@@ -58,13 +58,13 @@ def kmeans(data, k = 2, centroids = []):
     # assign step
     for i, (x, y) in enumerate(data):
       # get cluster with min distance to the point
-      assignments[(x, y)] = min([(c, distance((x, y), (cx, cy))) for (c, cx, cy) in centroids], key=lambda a: a[1])[0]
+      assignments[(x, y)] = min([(c, distance((x, y), (cx, cy))) for c, (cx, cy) in enumerate(centroids)], key=lambda a: a[1])[0]
 
     # move centroid step
     new_centroids = [0]*k
     new_centroids2 = [0]*k
 
-    for i, (c, cx, cy) in enumerate(centroids):
+    for c, (cx, cy) in enumerate(centroids):
       sumx = 0.0
       sumy = 0.0
       assign_count = 0
@@ -73,11 +73,11 @@ def kmeans(data, k = 2, centroids = []):
           sumx += x
           sumy += y
           assign_count += 1
-      new_centroids[i] = (c, sumx/assign_count, sumy/assign_count)
+      new_centroids[c] = (sumx/assign_count, sumy/assign_count)
 
     # checked if algorithm converged by comparing distances of old centroids to new ones
     converged = all(distance(
-      (centroids[i][1], centroids[i][2]), (new_centroids[i][1], new_centroids[i][2])
+      (centroids[i][0], centroids[i][1]), (new_centroids[i][0], new_centroids[i][1])
     ) < _convergence_threshold for i in range(k))
     centroids = new_centroids
 
@@ -132,10 +132,10 @@ def singlelink(data, k = 2):
 
 def clustering_difference(assignments1, assignments2):
   assert len(assignments1) <= len(assignments2)
-  same = 0.0
+  diff = 0.0
   for pt, c in assignments2.iteritems():
-    if pt in assignments1 and c == assignments1[pt]: same += 1
-  return same/len(assignments1)
+    if pt in assignments1 and c != assignments1[pt]: diff += 1
+  return diff/len(assignments1)
 
 # ======================= Spectral Clustering =======================
 
@@ -180,77 +180,108 @@ def spectral_label_diffs(l1, l2):
     if label != l2[i]: diffs += 1
   return diffs/len(l1)
 
-# ======================= Main =======================
+# ====================================================
+#                         Main
+# ====================================================
 
 # =============== Kmeans ===============
 
 # generate k means datasets
-centroids = [[0, 2.2, 2.4], [1, 1.8, 2.6]]
+centroids = [[2.2, 2.4], [1.8, 2.6]]
 
 x_kmeans_i = [[i%5, i/5] for i in range(30)]
 x_kmeans_ii = [[i%5, i/5] for i in range(30)]
 x_kmeans_ii += [[1.9, 4.5], [2.1, 4.5]]
 
 # test his files
-# with open('../hw2-jac/XkmeansI.csv') as datafile:
+# with open('../HW 2 - JAC/XkmeansI.csv') as datafile:
 #   x_kmeans_i = []
 #   for line in datafile:
 #     x_kmeans_i.append( map(lambda num: float(num), line.split(',')) )
-# with open('../hw2-jac/XkmeansI.csv') as datafile:
+# with open('../HW 2 - JAC/XkmeansII.csv') as datafile:
 #   x_kmeans_ii = []
 #   for line in datafile:
 #     x_kmeans_ii.append( map(lambda num: float(num), line.split(',')) )
+
+# with open('../HW 2 - JAC/means.csv') as datafile:
+#   centroids = []
+#   for line in datafile:
+#     centroids.append( map(lambda num: float(num), line.split(',')) )
 
 # run kmeans
 a1 = kmeans(x_kmeans_i, centroids=centroids)
 a2 = kmeans(x_kmeans_ii, centroids=centroids)
 
-# print 'Clustering similarity: %f' % clustering_difference(a1, a2)
+print 'Clustering differences: %f' % clustering_difference(a1, a2)
 
 # # =============== Singlelink ===============
 
-x_sl_I = [[i**1.1, 0] for i in range(31)]
-del x_sl_I[15]
-a1 = singlelink(x_sl_I)
+x_sl_i = [[i**1.1, 0] for i in range(31)]
+del x_sl_i[15]
 
-x_sl_II = [[i**1.1, 0] for i in range(31)]
-a2 = singlelink(x_sl_II)
+x_sl_ii = [[i**1.1, 0] for i in range(31)]
 
-print 'Clustering similarity: %f' % clustering_difference(a1, a2)
+# test his files
+# with open('../HW 2 - JAC/XslinkI.csv') as datafile:
+#   x_sl_i = []
+#   for line in datafile:
+#     x_sl_i.append( map(lambda num: float(num), line.split(',')) )
+
+# with open('../HW 2 - JAC/XslinkII.csv') as datafile:
+#   x_sl_ii = []
+#   for line in datafile:
+#     x_sl_ii.append( map(lambda num: float(num), line.split(',')) )
+
+# run single link
+a1 = singlelink(x_sl_i)
+a2 = singlelink(x_sl_ii)
+
+print 'Clustering differences: %f' % clustering_difference(a1, a2)
 
 # =============== Spectral ===============
 
 # Matrix 1 : Every point has two edges coming out of it except
 # one point, which only has 1 edge
-A = np.array([[0 for i in range(30)] for i in range(30)])
-for i in range(len(A)):
+A_i = np.array([[0 for i in range(30)] for i in range(30)])
+for i in range(len(A_i)):
   for k in range(1, 3):
-    j = (i+k) % len(A)
+    j = (i+k) % len(A_i)
     if i != 0 and j != 0:
-      A[i][j] = 1
-      A[j][i] = 1
+      A_i[i][j] = 1
+      A_i[j][i] = 1
   if i == 0:
-    A[i][i+1] = 1
-    A[i+1][i] = 1
-
-# print A
-check_symmetrical(A)
-labels_i = spectral_clustering(A, n_clusters=2, eigen_solver='arpack')
-print labels_i
+    A_i[i][i+1] = 1
+    A_i[i+1][i] = 1
+check_symmetrical(A_i)
 
 # Matrix 1 : Every point has two edges coming out of it
 A_ii = np.array([[0 for i in range(30)] for i in range(30)])
 for i in range(len(A_ii)):
   for k in range(1, 3):
-    j = (i+k) % len(A)
+    j = (i+k) % len(A_ii)
     A_ii[i][j] = 1
     A_ii[j][i] = 1
-
-# print A
 check_symmetrical(A_ii)
+
+# test his files
+# with open('../HW 2 - JAC/AspectralI.csv') as datafile:
+#   A_i = []
+#   for line in datafile:
+#     A_i.append( map(lambda num: float(num), line.split(',')) )
+# A_i = np.array(A_i)
+
+# with open('../HW 2 - JAC/AspectralII.csv') as datafile:
+#   A_ii = []
+#   for line in datafile:
+#     A_ii.append( map(lambda num: float(num), line.split(',')) )
+# A_ii = np.array(A_ii)
+
+# run spectral clustering
+labels_i = spectral_clustering(A_i, n_clusters=2, eigen_solver='arpack')
+print labels_i
+
 labels_ii = spectral_clustering(A_ii, n_clusters=2, eigen_solver='arpack')
 print labels_ii
-
 
 print spectral_label_diffs(labels_i, labels_ii)
 
