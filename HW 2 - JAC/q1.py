@@ -251,6 +251,7 @@ assert len(c2) > len(c1)
 assert sum(c1) == 15, sum(c1)
 assert km_1[:30] == km_2[:30]
 assert vary_amount(c1,c2) > 0.30, vary_amount(c1, c2)
+print 'kmeans', vary_amount(c1, c2)
 
 
 '''
@@ -346,6 +347,7 @@ assert len(c2) > len(c1)
 assert sum(c1) == 15, sum(c1)
 assert sl_1[:30] == sl_2[:30]
 assert vary_amount(c1,c2) > 0.30, vary_amount(c1, c2)
+print 'sl', vary_amount(c1, c2)
 
 '''
 Q 1.3 - Spectral clustering
@@ -431,4 +433,5 @@ assert len(sc_c2) == 30
 assert sum(sc_c1) == 15, sum(sc_c1)
 assert np.linalg.norm(np_A_new) - np.linalg.norm(np_A) <= 3
 assert vary_amount(sc_c1,sc_c2) > 0.30, vary_amount(sc_c1, sc_c2)
+print 'nl', vary_amount(sc_c1, sc_c2)
 
