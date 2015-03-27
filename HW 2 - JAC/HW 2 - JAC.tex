@@ -4,7 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{graphicx}
-\usepackage[colorinlistoftodos]{todonotes}
+
 
 \graphicspath{ {images/} }
 
@@ -20,8 +20,8 @@
 \begin{enumerate}
 
 \item[1.1)]
-
-To generate this dataset, we equally spaced 30 points on a circle, split the circle in half, and then translated one of the halves. As you can see in the picture below, the halves are now intersecting. By placing the the centroids in the center of each half circle, we created a fragile situation that enabled the means to change drastically. This situation was made worse because the the half circles are intersecting; the centroids will approximately mirror each other when they are recalculated each iteration. Because of this symmetric mirroring effect, the centroids each capture 15 points in their clusters. The centroids were especially easy to change since there were not two "natural clusters" in our the dataset.
+The idea of k-means is to minimize the sum of squared distances of each point to its cluster center (the centroid) according to the `Foundations of Data Science' by John Hopcroft and Ravindran Kannan. We try to exploit this in our solution\\
+To generate our dataset, we equally spaced 30 points on a circle, split the circle in half, and then translated one of the halves. As you can see in the picture below, the halves are now intersecting. By placing the the centroids in the center of each half circle, we created a fragile situation that enabled the means to change drastically. This situation was made worse because the the half circles are intersecting; the centroids will approximately mirror each other when they are recalculated each iteration. Because of this symmetric mirroring effect, the centroids each capture 15 points in their clusters. The centroids were especially easy to change since there were not two "natural clusters" in our the dataset.
 
 \includegraphics[width=0.5\textwidth]{K-means_for_XkmeansI.png}
 
@@ -49,7 +49,7 @@ Below is the k-means embedding, followed by the actual graph.
 
 \includegraphics[width=0.5\textwidth]{Spectral_I_Clustering.png}
 
-We added three edges in total, two to connect the original clusters so that the graph now formed a ring, and one to bridge the midpoints of the original clusters. The justification for this was that spectral decompostion would result in either the edges to the left or right of the midpoints being broken, separating the points into two separate clusters. Either way, we was sure that the k-means embedding would be vastly different since the previous graph had two components, while the modified graph only had a single component.
+We added three edges in total, two to connect the original clusters so that the graph now formed a ring, and one to bridge the midpoints of the original clusters. The justification for this was that spectral decomposition would result in either the edges to the left or right of the midpoints being broken, separating the points into two separate clusters. Either way, we was sure that the k-means embedding would be vastly different since the previous graph had two components, while the modified graph only had a single component.
 
 Below is the k-means embedding, followed by the actual graph.
 
