@@ -1,23 +1,29 @@
 import collections
 import gensim
+import logging
 import os
 import json
 import time
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 """
 Parameters
 """
 
-IMPORT_DIR = 'clean_docs'
+IMPORT_DIR = 'generated_docs'
+
+CORPORA_PATH = 'corpus.mm'
+DICTIONARY_PATH = 'dictionary.dict'
 
 # Model parameters
 NUM_TOPICS = 38 # The number of topics to find.
-NUM_PASSES = 50 # The number of passes to make over the corpus.
+NUM_PASSES = 2500 # The number of passes to make over the corpus.
 
 # Filter parameters
 FILTER = False
 NO_BELOW = 1
-NO_ABOVE = 0.95
+NO_ABOVE = 1.0 * 499 / 2740 # The max cluster size.
 
 # Output parameters
 N_TOP_WORDS = 10 # The number of top words to show per topic.
@@ -53,7 +59,11 @@ start_time = time.clock()
 print 'Creating dictionary...'
 
 dict_start_time = time.clock()
-dictionary = gensim.corpora.Dictionary(text for text,_ in MyCorpus(IMPORT_DIR))
+dictionary = None
+if not os.path.isfile(DICTIONARY_PATH):
+    dictionary = gensim.corpora.Dictionary(text for text,_ in MyCorpus(IMPORT_DIR))
+    dictionary.save(DICTIONARY_PATH)
+dictionary = gensim.corpora.Dictionary.load(DICTIONARY_PATH)
 
 print '\t', dictionary
 print '\tTime to create dictionary:', time.clock() - dict_start_time
@@ -80,10 +90,11 @@ print '====='
 print 'Serializing corpus...'
 
 serialize_start_time = time.clock()
-corpus = [dictionary.doc2bow(text) for text,_ in MyCorpus(IMPORT_DIR)]
-gensim.corpora.MmCorpus.serialize('corpus.mm', corpus)
-corpus = None
-mm = gensim.corpora.MmCorpus('corpus.mm')
+if not os.path.isfile(CORPORA_PATH):
+    corpus = [dictionary.doc2bow(text) for text,_ in MyCorpus(IMPORT_DIR)]
+    gensim.corpora.MmCorpus.serialize(CORPORA_PATH, corpus)
+    corpus = None
+mm = gensim.corpora.MmCorpus(CORPORA_PATH)
 
 print '\t', mm
 print '\tTime to serialize:', time.clock() - serialize_start_time
