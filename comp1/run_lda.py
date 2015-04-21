@@ -13,22 +13,22 @@ Parameters
 
 IMPORT_DIR = 'generated_docs'
 
-CORPORA_PATH = 'corpus.mm'
-DICTIONARY_PATH = 'dictionary.dict'
+CORPORA_PATH = 'corpus_filtered.mm'
+DICTIONARY_PATH = 'dictionary_filtered.dict'
 
 # Model parameters
 NUM_TOPICS = 38 # The number of topics to find.
-NUM_PASSES = 2500 # The number of passes to make over the corpus.
+NUM_PASSES = 2000 # The number of passes to make over the corpus.
 
 # Filter parameters
-FILTER = False
-NO_BELOW = 1
-NO_ABOVE = 1.0 * 499 / 2740 # The max cluster size.
+FILTER = True
+NO_BELOW = 3
+NO_ABOVE = 1.0 * 294 / 2740 # The max cluster size.
 
 # Output parameters
 N_TOP_WORDS = 10 # The number of top words to show per topic.
-TOPIC_FILE = 'topics.txt'
-CLASSIFICATION_PATH = 'classes.txt'
+TOPIC_FILE = 'topics_filtered.txt'
+CLASSIFICATION_PATH = 'classes_filtered.txt'
 
 """
 Lazy iterator for accessing files. This allows us to access the files without
