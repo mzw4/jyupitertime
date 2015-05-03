@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{amsfonts}
 \usepackage[colorinlistoftodos]{todonotes}
 
 \graphicspath{ {images/} }
@@ -22,7 +23,17 @@
 \item[Q1)]
 	
 	\begin{enumerate}
-	\item[1)] The parameters of the model are $\mu_1$, $\mu_2$, $\sigma$, and $\pi$.
+	\item[1)] The parameters of the model are:
+		\begin{itemize}
+		\item $\mu_1$\\
+		The first red-apple tree location ($ \mu_1 \in \mathbb{R}^2 $)
+		\item $\mu_2$\\
+		The first green-apple tree location ($ \mu_2 \in \mathbb{R}^2 $)
+		\item $\sigma$\\
+		The parameter defining variance ($ \sigma^2 $) for both $ \mu_1 and \mu_2 $
+		\item $\pi$\\
+		A mixture distribution over the $ K=2 $ types of trees
+		\end{itemize}
 	
 	\item[2)] There O(2N) nodes and $O(N^2)$ edges. Each time step is independent of others, in terms of selecting which type of tree to sprout. However, choosing the location depends on this choice as well as all the previous tree locations and previous tree type choices, since there is no indication (in this model) of which location was the most recent location of the corresponding tree choice. Thus, at each time step, the location at the time step will have one edge from the tree choice at that time test, and an edge from all the previous tree choices and tree locations.
 	
