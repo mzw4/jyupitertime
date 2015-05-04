@@ -91,12 +91,12 @@
 	\begin{enumerate}
 	\item[1)] The hidden variables are the set \{$C_t$\}. The set of observed variables are the set \{$X_t$\}.
 	
-	\item[2)] $\log(P_\theta(O, H)) = \log \prod_{t=1}^N P(C_t) P(X_t | X_t^1, X_t^2, C_t$)$(X^1_t | C_t, X^1_{t-1})(X^2_t | C_t, X^2_{t-1})$
-	$\log(P_\theta(O, H)) = \log \prod_{t=1}^N P(C_t)(X^1_t | C_t, X^1_{t-1})(X^2_t | C_t, X^2_{t-1})$
+	\item[2)] $\log(P_\theta(O, H)) = \log \prod_{t=1}^N P(C_t) P(X_t | X_t^1, X_t^2, C_t$)$P(X^1_t | C_t, X^1_{t-1})P(X^2_t | C_t, X^2_{t-1})$
+	$\log(P_\theta(O, H)) = \log \prod_{t=1}^N P(C_t)P(X^1_t | C_t, X^1_{t-1})P(X^2_t | C_t, X^2_{t-1})$
 	
 	= $\sum_{t=1}^N \{ log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1})\} + log(P(X^2_t | C_t, X^2_{t-1})\}$
 	
-	\item[3)] \textbf{TODO}
+	\item[3)] $\sum_{t=1}^N \sum_{H} \{ Q^i(H)( log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1})\} + log(P(X^2_t | C_t, X^2_{t-1})) \}$ 
 	\end{enumerate}
 
 \end{enumerate}
