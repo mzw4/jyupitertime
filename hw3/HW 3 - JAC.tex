@@ -45,9 +45,9 @@
 	
 	$P(X^{(i)}_t | C_t, X^{(i)}_{t-1}) = \mathbbm{1}_{ i = C_t }N(X^{(i)}_{t-1}, \sigma^2 I)$ + $\mathbbm{1}_{ i \neq C_t} $
 	
-	$P(X^1_1) = N(\mu_1, \sigma^2 I)$
+	$P(X^1_0) = N(\mu_1, \sigma^2 I)$
 	
-	$P(X^2_1) = N(\mu_2, \sigma^2 I)$
+	$P(X^2_0) = N(\mu_2, \sigma^2 I)$
 	
 	\item[5)] For variable elimination (and also the order we will eliminate variables):
 
@@ -96,7 +96,30 @@
 	
 	= $\sum_{t=1}^N \{ log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1})\} + log(P(X^2_t | C_t, X^2_{t-1})\}$
 	
-	\item[3)] $\sum_{t=1}^N \sum_{H} \{ Q^i(H)( log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1})\} + log(P(X^2_t | C_t, X^2_{t-1})) \}$ 
+	\item[3)] 
+	$\sum_H Q^i(H) log P_\theta(O,H) =$	
+	
+	$\sum_{t=1}^N \sum_{H} \{ Q^i(H)( log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1})\} + log(P(X^2_t | C_t, X^2_{t-1})) \}$ 
+	
+	$ \\ $	
+	
+	$Q^i(H) = P(C_1=h, C_2=j, C_3=k, ...)$ 
+	
+	$= \prod_{t=1}^N P(C_i=j) = \prod_{t=1}^N Q^i_t(H_t)$
+	
+	$ \\ $	
+	
+	$Q^i_t(C_t =k) = P(C_t = k | X_t, \theta^{(i-1)}) =$
+	
+	$P(X_t | C_t = k, \theta^{(i-1)}) P(C_t = k | \theta^{(i-1)}) =
+	P(C_t = k | \theta^{(i-1)})$
+	
+	$ \\ $	
+	
+	Thus,
+	$\sum_H Q^i(H) log P_\theta(O,H) =$	
+	
+	$\sum_{t=1}^N \sum_{C_t} \{ P(C_t)( log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1})\} + log(P(X^2_t | C_t, X^2_{t-1})) \}$ 
 	\end{enumerate}
 
 \end{enumerate}
