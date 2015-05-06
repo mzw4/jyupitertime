@@ -1,0 +1,58 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{pdflscape}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{courier}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{scrextend}
+
+\newgeometry{margin=1in}
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\setlength\parindent{0pt}
+
+\newcommand{\tab}[1]{\hspace{.2\textwidth}\rlap{#1}}
+
+\lhead {mzw4 jac677 nwp7}
+\chead{CS 4786 Extra Credit}
+\rhead {\today}
+\cfoot{\thepage}
+
+\begin{document}
+
+\subsection*{3. Comparing Generated Sets}
+
+\subsection*{4. EM Derivation}
+
+\subsubsection*{E step:}
+
+\subsubsection*{M step:}
+
+We derive the M step by taking the derivative of the expectation with respect to each of the parameters. \\
+\\
+Let $ E $ = $ \sum_{t=1}^N \sum_{C_t} \{ \pi^{(i)}_t( log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1}) + log(P(X^2_t | C_t, X^2_{t-1})) \} $
+\subsubsection*{Solving for $ \pi $:}
+\begin{align*} 
+\frac{\partial}{\partial \pi}& E = \frac{\partial}{\partial \pi} \sum_{t=1}^N \{ \pi^{1}_t( log(\pi^{1}_t) + log(N(X^{1}_{t-1}, \sigma I))) + (1-\pi^{1}_t)(log(1-\pi^{1}_t) + log(N(X^{2}_{t-1}, \sigma I))) \} \\ 
+=& \sum_{t=1}^N log(\pi^{1}_t) + 1 + log(1 - \pi^{2}_t) - 1 +  log(N(X^{1}_{t-1}, \sigma I)) + log(N(X^{2}_{t-1}, \sigma I)) = 0 \\
+\sum_{t=1}^N & log(\frac{\pi^{1}_t}{1 - \pi^{1}_t}) = -\sum_{t=1}^N log(N(X^{1}_{t-1}, \sigma I)) + log(N(X^{2}_{t-1}, \sigma I)) = log(\prod_{t=1}^N \frac{\pi^{1}_t}{1 - \pi^{1}_t}) \\
+\prod_{t=1}^N& \frac{\pi^{1}_t}{1 - \pi^{1}_t} = e^{-\sum_{t=1}^N log(N(X^{1}_{t-1}, \sigma I)) + log(N(X^{2}_{t-1}, \sigma I))}\\
+\end{align*}
+
+\subsubsection*{Solving for $ \mu $:}
+\begin{align*} 
+\frac{\partial}{\partial \mu}& E = \frac{\partial}{\partial \mu} \sum_{t=1}^N  \pi^{(i)}_t log(N(X^{1}_{t-1}, \sigma I)) +  \pi^{(i)}_t log(N(X^{2}_{t-1}, \sigma I))\\ 
+=& \frac{\partial}{\partial \mu} \sum_{t=1}^N log(\frac{e^{\frac{-(X^1_t)^2)}{2\sigma^2} } } {\sigma \sqrt{2\pi}}) + log(\frac{e^{\frac{-(X^2_t)^2)}{2\sigma^2} } } {\sigma \sqrt{2\pi}})\\
+=& \sum_{t=1}^N \frac{X^1_t}{\sigma^2} + \frac{X^2_t}{\sigma^2}
+\end{align*}
+
+\subsubsection*{Solving for $ \sigma $:}
+
+\end{document}
