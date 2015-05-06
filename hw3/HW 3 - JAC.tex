@@ -39,7 +39,7 @@
 		
 	\includegraphics[width=0.75\textwidth]{Q1-3.png}
 	
-	\item[4)] $P(C_t = i | \text{parents}) = \pi$
+	\item[4)] $P(C_t = i) = \pi_i$
 	
 	$P(X_t | C_t = i, X^1_{t}, X^2_{t}) = 1$
 	
@@ -103,23 +103,14 @@
 	
 	$ \\ $	
 	
-	$Q^i(H) = P(C_1=h, C_2=j, C_3=k, ...)$ 
-	
-	$= \prod_{t=1}^N P(C_i=j) = \prod_{t=1}^N Q^i_t(H_t)$
-	
-	$ \\ $	
-	
-	$Q^i_t(C_t =k) = P(C_t = k | X_t, \theta^{(i-1)}) =$
-	
-	$P(X_t | C_t = k, \theta^{(i-1)}) P(C_t = k | \theta^{(i-1)}) =
-	P(C_t = k | \theta^{(i-1)})$
+	$Q^i(H) = \pi^{(i)}$
 	
 	$ \\ $	
 	
 	Thus,
 	$\sum_H Q^i(H) log P_\theta(O,H) =$	
 	
-	$\sum_{t=1}^N \sum_{C_1,..,C_t} \{ P(C_1,...,C_t)( log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1})\} + log(P(X^2_t | C_t, X^2_{t-1})) \}$ 
+	$\sum_{t=1}^N \sum_{C_t} \{ \pi^{(i)}_t( log(P(C_t)) + log(P(X^1_t | C_t, X^1_{t-1})\} + log(P(X^2_t | C_t, X^2_{t-1})) \}$ 
 	\end{enumerate}
 
 \end{enumerate}
